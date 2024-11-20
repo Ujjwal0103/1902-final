@@ -1,0 +1,17 @@
+{
+    "expenses": [
+        {
+            "amount": 1000.0,
+            "category": "Food",
+            "date": "2024-12-24",
+            "description": "Halal"
+        },
+        {
+            "amount": 10000.0,
+            "category": "Food",
+            "date": "2024-12-24",
+            "description": "Halal"
+        }
+    ],
+    "income": []
+}
