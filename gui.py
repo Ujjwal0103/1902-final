@@ -1,14 +1,33 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from datetime import datetime
 from data_handler import add_expense, add_income, save_data, get_all_income, get_all_expenses
 from models import Expense, Income
 from visualization import plot_expenses_by_category, plot_monthly_income_expenses
 
+BACKGROUND_COLOR = "#f0f4f8"
+PRIMARY_COLOR = "#4a90e2"
+SECONDARY_COLOR = "#7ed6df"
+TEXT_COLOR = "#2c3e50"
+ACCENT_COLOR = "#3498db"
+
 # Initialize main window
 root = tk.Tk()
 root.title("Personal Finance Tracker")
-root.geometry("500x400")
+root.geometry("500x1000")
+root.configure(bg=BACKGROUND_COLOR)
+
+style = ttk.Style()
+style.theme_use('clam')
+style.configure("TFrame", background=BACKGROUND_COLOR)
+style.configure("TLabel", 
+                background=BACKGROUND_COLOR, 
+                foreground=TEXT_COLOR, 
+                font=("Segoe UI", 10))
+style.configure("TButton", 
+                background=PRIMARY_COLOR, 
+                foreground="white", 
+                font=("Segoe UI", 10, "bold"))
 
 # Helper functions
 def add_expense_gui():
@@ -55,6 +74,20 @@ def reset_data_on_exit():
 # Bind the close window event to the reset function
 root.protocol("WM_DELETE_WINDOW", reset_data_on_exit)
 
+def create_styled_frame(parent, title):
+    frame = ttk.Frame(parent, style="TFrame")
+    frame.pack(padx=15, pady=0, fill="x")
+    
+    title_label = ttk.Label(frame, text=title, 
+                            font=("Segoe UI", 12, "bold"), 
+                            foreground=PRIMARY_COLOR)
+    title_label.pack(pady=(0, 0))
+    
+    separator = ttk.Separator(frame, orient='horizontal')
+    separator.pack(fill='x', padx=10, pady=(0, 0))
+    
+    return frame
+
 def view_expenses_gui():
     try:
         # Create a new window
@@ -76,8 +109,8 @@ def view_expenses_gui():
         scrollbar.config(command=expenses_listbox.yview)
 
         # Load expenses
-        from data_handler import get_all_expenses  # Import function to fetch all expenses
         expenses = get_all_expenses()
+        income = get_all_income()
         for i, expense in enumerate(expenses):
             expenses_listbox.insert(tk.END, f"{i + 1}. {expense['description']} - ${expense['amount']} ({expense['category']}) on {expense['date']}")
 
@@ -89,9 +122,10 @@ def view_expenses_gui():
                     raise Exception("No expense selected")
                 selected_index = selected_index[0]  # Get the selected item's index
                 del expenses[selected_index]  # Delete the selected expense from the list
-                save_data({"expenses": expenses, "income": []})  # Save updated data
+                save_data({"expenses": expenses, "income": income})  # Save updated data
                 expenses_listbox.delete(selected_index)  # Remove from the listbox
                 messagebox.showinfo("Success", "Expense deleted successfully!")
+                update_summary()
             except Exception as e:
                 messagebox.showerror("Error", f"Could not delete expense: {e}")
 
@@ -123,9 +157,9 @@ def view_income_gui():
         income_listbox.pack(side="left", fill="both", expand=True)
         scrollbar.config(command=income_listbox.yview)
 
-        # Load income
-        from data_handler import get_all_income  # Import function to fetch all income
+        # Load incomee
         income_data = get_all_income()
+        expenses = get_all_expenses()
         for i, income in enumerate(income_data):
             income_listbox.insert(
                 tk.END, f"{i + 1}. {income['source']} - ${income['amount']} on {income['date']}"
@@ -139,9 +173,10 @@ def view_income_gui():
                     raise Exception("No income selected")
                 selected_index = selected_index[0]  # Get the selected item's index
                 del income_data[selected_index]  # Delete the selected income from the list
-                save_data({"expenses": [], "income": income_data})  # Save updated data
+                save_data({"expenses": expenses, "income": income_data})  # Save updated data
                 income_listbox.delete(selected_index)  # Remove from the listbox
                 messagebox.showinfo("Success", "Income deleted successfully!")
+                update_summary()
             except Exception as e:
                 messagebox.showerror("Error", f"Could not delete income: {e}")
 
@@ -180,121 +215,120 @@ def update_summary():
         net_balance = total_income - total_expenses
 
         # Update labels
-        total_income_label.config(text=f"Total Income: ${total_income:.2f}")
-        total_expenses_label.config(text=f"Total Expenses: ${total_expenses:.2f}")
-        net_balance_label.config(text=f"Net Balance: ${net_balance:.2f}")
+        total_income_label.config(text=f"Total Income: ${total_income:.2f}", font=24)
+        total_expenses_label.config(text=f"Total Expenses: ${total_expenses:.2f}", font=24)
+        net_balance_label.config(text=f"Net Balance: ${net_balance:.2f}", font=24)
 
     except Exception as e:
         messagebox.showerror("Error", f"Could not update summary: {e}")
 
+# Summary frame
+summary_frame = create_styled_frame(root, "Quick Summary Dashboard")
 
-# Create frames for each section
-expense_frame = tk.LabelFrame(root, text="Add Expense", padx=10, pady=10)
-income_frame = tk.LabelFrame(root, text="Add Income", padx=10, pady=10)
-report_frame = tk.LabelFrame(root, text="Reports", padx=10, pady=10)
-summary_frame = tk.LabelFrame(root, text="Quick Summary Dashboard", padx=10, pady=10)
+total_income_label = ttk.Label(summary_frame, text="Total Income: $0.00")
+total_income_label.pack(pady=2)
+
+total_expenses_label = ttk.Label(summary_frame, text="Total Expenses: $0.00")
+total_expenses_label.pack(pady=2)
+
+net_balance_label = ttk.Label(summary_frame, text="Net Balance: $0.00")
+net_balance_label.pack(pady=2)
+
+month_label = ttk.Label(summary_frame, text="Select Month", font= 24)
+month_label.pack(side="left", padx=5, pady=2)
+month_var = tk.StringVar()
+month_dropdown = ttk.OptionMenu(summary_frame, month_var, *[str(i) for i in range(1, 13)])
+month_dropdown.config(width=5)
+month_var.set(str(datetime.now().month))  # Default to current month
+month_dropdown.pack(side="left", padx=5, pady=2)
+year_label = ttk.Label(summary_frame, text="Select Year", font= 24)
+year_label.pack(side="left", padx=5, pady=2)
+year_var = tk.StringVar()
+year_dropdown = ttk.OptionMenu(summary_frame, year_var, *[str(i) for i in range(2020, 2031)])
+year_dropdown.config(width=5)
+year_var.set(str(datetime.now().year))  # Default to current year
+year_dropdown.pack(side="left", padx=5, pady=2)
+
+update_button = ttk.Button(summary_frame, text="Update Summary", command=update_summary, width=50)
+update_button.pack(side = "left", padx=5, pady=2)
 
 # Expense fields
-expense_amount_label = tk.Label(expense_frame, text="Amount")
-expense_amount_label.grid(row=0, column=0)
-expense_amount_entry = tk.Entry(expense_frame)
-expense_amount_entry.grid(row=0, column=1)
 
-expense_category_label = tk.Label(expense_frame, text="Category")
-expense_category_label.grid(row=1, column=0)
-expense_category_entry = tk.Entry(expense_frame)
-expense_category_entry.grid(row=1, column=1)
+expense_frame = create_styled_frame(root, "Add Expense")
+expense_amount_label = ttk.Label(expense_frame, text="Amount")
+expense_amount_label.pack(fill='x', padx=20, pady=(2, 0))
+expense_amount_entry = ttk.Entry(expense_frame, width=40)
+expense_amount_entry.pack(fill='x', padx=20, pady=(2, 5))
 
-expense_date_label = tk.Label(expense_frame, text="Date (YYYY-MM-DD)")
-expense_date_label.grid(row=2, column=0)
-expense_date_entry = tk.Entry(expense_frame)
-expense_date_entry.grid(row=2, column=1)
+expense_category_label = ttk.Label(expense_frame, text="Category")
+expense_category_label.pack(fill='x', padx=20, pady=(2, 0))
+expense_category_entry = ttk.Entry(expense_frame, width=40)
+expense_category_entry.pack(fill='x', padx=20, pady=(0, 2))
 
-expense_description_label = tk.Label(expense_frame, text="Description")
-expense_description_label.grid(row=3, column=0)
-expense_description_entry = tk.Entry(expense_frame)
-expense_description_entry.grid(row=3, column=1)
+expense_date_label = ttk.Label(expense_frame, text="Date (YYYY-MM-DD)")
+expense_date_label.pack(fill='x', padx=20, pady=(2, 0))
+expense_date_entry = ttk.Entry(expense_frame, width=40)
+expense_date_entry.pack(fill='x', padx=20, pady=(0, 2))
 
-expense_button = tk.Button(expense_frame, text="Add Expense", command=add_expense_gui)
-expense_button.grid(row=4, column=0, columnspan=2)
+expense_description_label = ttk.Label(expense_frame, text="Description")
+expense_description_label.pack(fill='x', padx=20, pady=(2, 0))
+expense_description_entry = ttk.Entry(expense_frame, width=40)
+expense_description_entry.pack(fill='x', padx=20, pady=(0, 2))
 
-# Income fields
-income_amount_label = tk.Label(income_frame, text="Amount")
-income_amount_label.grid(row=0, column=0)
-income_amount_entry = tk.Entry(income_frame)
-income_amount_entry.grid(row=0, column=1)
+expense_button = ttk.Button(expense_frame, text="Add Expense", command=add_expense_gui, )
+expense_button.pack(pady=2)
 
-income_source_label = tk.Label(income_frame, text="Source")
-income_source_label.grid(row=1, column=0)
-income_source_entry = tk.Entry(income_frame)
-income_source_entry.grid(row=1, column=1)
+view_expenses_button = ttk.Button(expense_frame, text="View Expenses", command=view_expenses_gui)
+view_expenses_button.pack(pady=2)
 
-income_date_label = tk.Label(income_frame, text="Date (YYYY-MM-DD)")
-income_date_label.grid(row=2, column=0)
-income_date_entry = tk.Entry(income_frame)
-income_date_entry.grid(row=2, column=1)
+# Income frame
+income_frame = create_styled_frame(root, "Add Income")
 
-income_button = tk.Button(income_frame, text="Add Income", command=add_income_gui)
-income_button.grid(row=3, column=0, columnspan=2)
+income_amount_label = ttk.Label(income_frame, text="Amount")
+income_amount_label.pack(fill='x', padx=20, pady=(2, 0))
+income_amount_entry = ttk.Entry(income_frame, width=40)
+income_amount_entry.pack(fill='x', padx=20, pady=(0, 2))
 
-# Report buttons
-view_expenses_button = tk.Button(report_frame, text="View Expenses by Category", command=view_expenses_by_category_gui)
-view_expenses_button.grid(row=0, column=0, columnspan=2)
+income_source_label = ttk.Label(income_frame, text="Source")
+income_source_label.pack(fill='x', padx=20, pady=(2, 0))
+income_source_entry = ttk.Entry(income_frame, width=40)
+income_source_entry.pack(fill='x', padx=20, pady=(0, 2))
 
-year_label = tk.Label(report_frame, text="Year")
-year_label.grid(row=1, column=0)
-year_entry = tk.Entry(report_frame)
-year_entry.grid(row=1, column=1)
+income_date_label = ttk.Label(income_frame, text="Date (YYYY-MM-DD)")
+income_date_label.pack(fill='x', padx=20, pady=(2, 0))
+income_date_entry = ttk.Entry(income_frame, width=40)
+income_date_entry.pack(fill='x', padx=20, pady=(0, 2))
 
-month_label = tk.Label(report_frame, text="Month")
-month_label.grid(row=2, column=0)
-month_entry = tk.Entry(report_frame)
-month_entry.grid(row=2, column=1)
+income_button = ttk.Button(income_frame, text="Add Income", command=add_income_gui)
+income_button.pack(pady=2)
 
-view_income_expenses_button = tk.Button(report_frame, text="View Monthly Income vs Expenses", command=view_monthly_income_expenses_gui)
-view_income_expenses_button.grid(row=3, column=0, columnspan=2)
+view_income_button = ttk.Button(income_frame, text="View Income", command=view_income_gui)
+view_income_button.pack(pady=2)
 
-# Add the "View Expenses" button in the expense frame
-view_expenses_button = tk.Button(expense_frame, text="View Expenses", command=view_expenses_gui)
-view_expenses_button.grid(row=5, column=0, columnspan=2)
+# Report frame
+report_frame = create_styled_frame(root, "Reports")
 
-# Add the "View Income" button in the income frame
-view_income_button = tk.Button(income_frame, text="View Income", command=view_income_gui)
-view_income_button.grid(row=4, column=0, columnspan=2)
+view_expenses_by_category_button = ttk.Button(report_frame, text="View Expenses by Category", command=view_expenses_by_category_gui)
+view_expenses_by_category_button.pack(fill='x', padx=20, pady=5)
 
-total_income_label = tk.Label(summary_frame, text="Total Income: $0.00")
-total_income_label.pack()
+year_label = ttk.Label(report_frame, text="Year")
+year_label.pack(fill='x', padx=20, pady=(2, 0))
+year_entry = ttk.Entry(report_frame, width=40)
+year_entry.pack(fill='x', padx=20, pady=(0, 2))
 
-total_expenses_label = tk.Label(summary_frame, text="Total Expenses: $0.00")
-total_expenses_label.pack()
+month_label = ttk.Label(report_frame, text="Month")
+month_label.pack(fill='x', padx=20, pady=(2, 0))
+month_entry = ttk.Entry(report_frame, width=40)
+month_entry.pack(fill='x', padx=20, pady=(0, 2))
 
-net_balance_label = tk.Label(summary_frame, text="Net Balance: $0.00")
-net_balance_label.pack()
-
-month_label = tk.Label(summary_frame, text="Select Month")
-month_label.pack(side="left", padx=5, pady=5)
-month_var = tk.StringVar()
-month_dropdown = tk.OptionMenu(summary_frame, month_var, *[str(i) for i in range(1, 13)])
-month_var.set(str(datetime.now().month))  # Default to current month
-month_dropdown.pack(side="left", padx=5, pady=5)
-
-# Add dropdown for selecting year
-year_label = tk.Label(summary_frame, text="Select Year")
-year_label.pack(side="left", padx=5, pady=5)
-year_var = tk.StringVar()
-year_dropdown = tk.OptionMenu(summary_frame, year_var, *[str(i) for i in range(2020, 2031)])  # Example: years 2020-2030
-year_var.set(str(datetime.now().year))  # Default to current year
-year_dropdown.pack(side="left", padx=5, pady=5)
-
-# Add button to update the summary
-update_button = tk.Button(summary_frame, text="Update Summary", command=update_summary)
-update_button.pack(padx=325, pady=10, side="left")
+view_income_expenses_button = ttk.Button(report_frame, text="View Monthly Income vs Expenses", command=view_monthly_income_expenses_gui)
+view_income_expenses_button.pack(fill='x', padx=20, pady=2)
 
 # Pack frames
-summary_frame.pack(padx=10, pady=10, fill="both")
-expense_frame.pack(padx=10, pady=10, fill="both")
-income_frame.pack(padx=10, pady=10, fill="both")
-report_frame.pack(padx=10, pady=10, fill="both")
+summary_frame.pack(padx=10, pady=5, fill="both")
+expense_frame.pack(padx=10, pady=5, fill="both")
+income_frame.pack(padx=10, pady=5, fill="both")
+report_frame.pack(padx=10, pady=5, fill="both")
 
 # Run the main loop
 update_summary()
