@@ -13,7 +13,7 @@ A Python desktop application for managing personal finances with income and expe
 
 ## Requirements
 
-- Python 3
+- `Python 3`
 - `matplotlib`
 - `pydantic`
 - `tkinter comes installed`
@@ -21,8 +21,17 @@ A Python desktop application for managing personal finances with income and expe
 ## Installation
 
 ```
+sudo apt-get update
+sudo apt-get install python3
 pip install matplotlib pydantic
+
+```
+
+## Usage
+
+```
 python3 gui.py
+
 ```
 
 ## Project Structure
