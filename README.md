@@ -21,10 +21,7 @@ A Python desktop application for managing personal finances with income and expe
 ## Installation
 
 ```
-bash pip install matplotlib pydantic
-Usage
-bash
-Copy code
+pip install matplotlib pydantic
 python3 gui.py
 ```
 
