@@ -7,25 +7,23 @@ DATA_FILE = "data.json"
 
 
 def load_data():
-    # Load data from the JSON file
     try:
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-            # Ensure all expenses and income dates are in datetime.date format
             for expense in data["expenses"]:
                 if expense["amount"] == '':
-                    expense["amount"] = 0.0  # Default to 0.0 if 'amount' is empty
+                    expense["amount"] = 0.0 
                 else:
                     try:
                         expense["amount"] = float(expense["amount"])
                     except ValueError:
-                        expense["amount"] = 0.0  # Default to 0.0 if invalid value
+                        expense["amount"] = 0.0
                 expense["date"] = datetime.fromisoformat(expense["date"]).date()
 
             for income in data["income"]:
                 if income["amount"] == '':
-                    income["amount"] = 0.0  # Default to 0.0 if 'amount' is empty
+                    income["amount"] = 0.0  
                 else:
                     try:
                         income["amount"] = float(income["amount"])
@@ -41,20 +39,18 @@ def load_data():
         return {"expenses": [], "income": []}
 
 def save_data(data):
-    # Save data back to the JSON file
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, default=str, indent=4)
 
 
 def clean_data(data):
-    # Ensure the 'amount' field is a valid number
     for entry in data:
         if isinstance(entry.get('amount', ''), str) and entry['amount'] == '':
-            entry['amount'] = 0  # Replace empty strings with 0 or another default
+            entry['amount'] = 0  
         try:
-            entry['amount'] = float(entry['amount'])  # Convert to float
+            entry['amount'] = float(entry['amount'])  
         except ValueError:
-            entry['amount'] = 0  # Set to 0 if it fails to convert
+            entry['amount'] = 0  
     return data
 
 def get_all_expenses():

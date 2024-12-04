@@ -68,10 +68,9 @@ def view_monthly_income_expenses_gui():
 
 def reset_data_on_exit():
     initial_data = {"expenses": [], "income": []}
-    save_data(initial_data)  # Save empty data to reset the file
-    root.destroy()  # Close the window
+    save_data(initial_data) 
+    root.destroy() 
 
-# Bind the close window event to the reset function
 root.protocol("WM_DELETE_WINDOW", reset_data_on_exit)
 
 def create_styled_frame(parent, title):
@@ -90,46 +89,39 @@ def create_styled_frame(parent, title):
 
 def view_expenses_gui():
     try:
-        # Create a new window
         view_window = tk.Toplevel(root)
         view_window.title("View and Delete Expenses")
         view_window.geometry("400x300")
 
-        # Create a frame to display expenses
         expenses_frame = tk.Frame(view_window)
         expenses_frame.pack(fill="both", expand=True)
 
-        # Add a scrollbar
         scrollbar = tk.Scrollbar(expenses_frame)
         scrollbar.pack(side="right", fill="y")
 
-        # Create a Listbox to display expenses
         expenses_listbox = tk.Listbox(expenses_frame, yscrollcommand=scrollbar.set, width=50, height=15)
         expenses_listbox.pack(side="left", fill="both", expand=True)
         scrollbar.config(command=expenses_listbox.yview)
 
-        # Load expenses
         expenses = get_all_expenses()
         income = get_all_income()
         for i, expense in enumerate(expenses):
             expenses_listbox.insert(tk.END, f"{i + 1}. {expense['description']} - ${expense['amount']} ({expense['category']}) on {expense['date']}")
 
-        # Function to delete selected expense
         def delete_selected_expense():
             try:
                 selected_index = expenses_listbox.curselection()
                 if not selected_index:
                     raise Exception("No expense selected")
-                selected_index = selected_index[0]  # Get the selected item's index
-                del expenses[selected_index]  # Delete the selected expense from the list
-                save_data({"expenses": expenses, "income": income})  # Save updated data
-                expenses_listbox.delete(selected_index)  # Remove from the listbox
+                selected_index = selected_index[0] 
+                del expenses[selected_index]  
+                save_data({"expenses": expenses, "income": income})  
+                expenses_listbox.delete(selected_index)  
                 messagebox.showinfo("Success", "Expense deleted successfully!")
                 update_summary()
             except Exception as e:
                 messagebox.showerror("Error", f"Could not delete expense: {e}")
 
-        # Add a delete button
         delete_button = tk.Button(view_window, text="Delete Selected Expense", command=delete_selected_expense)
         delete_button.pack(pady=10)
 
@@ -139,25 +131,20 @@ def view_expenses_gui():
 
 def view_income_gui():
     try:
-        # Create a new window
         view_window = tk.Toplevel(root)
         view_window.title("View and Delete Income")
         view_window.geometry("400x300")
 
-        # Create a frame to display income
         income_frame = tk.Frame(view_window)
         income_frame.pack(fill="both", expand=True)
 
-        # Add a scrollbar
         scrollbar = tk.Scrollbar(income_frame)
         scrollbar.pack(side="right", fill="y")
 
-        # Create a Listbox to display income
         income_listbox = tk.Listbox(income_frame, yscrollcommand=scrollbar.set, width=50, height=15)
         income_listbox.pack(side="left", fill="both", expand=True)
         scrollbar.config(command=income_listbox.yview)
 
-        # Load incomee
         income_data = get_all_income()
         expenses = get_all_expenses()
         for i, income in enumerate(income_data):
@@ -165,22 +152,20 @@ def view_income_gui():
                 tk.END, f"{i + 1}. {income['source']} - ${income['amount']} on {income['date']}"
             )
 
-        # Function to delete selected income
         def delete_selected_income():
             try:
                 selected_index = income_listbox.curselection()
                 if not selected_index:
                     raise Exception("No income selected")
-                selected_index = selected_index[0]  # Get the selected item's index
-                del income_data[selected_index]  # Delete the selected income from the list
-                save_data({"expenses": expenses, "income": income_data})  # Save updated data
-                income_listbox.delete(selected_index)  # Remove from the listbox
+                selected_index = selected_index[0]  
+                del income_data[selected_index]  
+                save_data({"expenses": expenses, "income": income_data}) 
+                income_listbox.delete(selected_index) 
                 messagebox.showinfo("Success", "Income deleted successfully!")
                 update_summary()
             except Exception as e:
                 messagebox.showerror("Error", f"Could not delete income: {e}")
 
-        # Add a delete button
         delete_button = tk.Button(view_window, text="Delete Selected Income", command=delete_selected_income)
         delete_button.pack(pady=10)
 
@@ -189,11 +174,9 @@ def view_income_gui():
 
 def update_summary():
     try:
-        # Fetch all income and expenses
         income_data = get_all_income()
         expense_data = get_all_expenses()
 
-        # Filter data for the current month
         selected_month = int(month_var.get())
         selected_year = int(year_var.get())
 
@@ -211,10 +194,8 @@ def update_summary():
             and datetime.strptime(entry["date"], "%Y-%m-%d").year == selected_year
         )
 
-        # Calculate net balance
         net_balance = total_income - total_expenses
 
-        # Update labels
         total_income_label.config(text=f"Total Income: ${total_income:.2f}", font=24)
         total_expenses_label.config(text=f"Total Expenses: ${total_expenses:.2f}", font=24)
         net_balance_label.config(text=f"Net Balance: ${net_balance:.2f}", font=24)
@@ -222,7 +203,6 @@ def update_summary():
     except Exception as e:
         messagebox.showerror("Error", f"Could not update summary: {e}")
 
-# Summary frame
 summary_frame = create_styled_frame(root, "Quick Summary Dashboard")
 
 total_income_label = ttk.Label(summary_frame, text="Total Income: $0.00")
@@ -239,14 +219,14 @@ month_label.pack(side="left", padx=5, pady=2)
 month_var = tk.StringVar()
 month_dropdown = ttk.OptionMenu(summary_frame, month_var, *[str(i) for i in range(0, 13)])
 month_dropdown.config(width=5)
-month_var.set(str(datetime.now().month))  # Default to current month
+month_var.set(str(datetime.now().month)) 
 month_dropdown.pack(side="left", padx=5, pady=2)
 year_label = ttk.Label(summary_frame, text="Select Year", font= 24)
 year_label.pack(side="left", padx=5, pady=2)
 year_var = tk.StringVar()
 year_dropdown = ttk.OptionMenu(summary_frame, year_var, *[str(i) for i in range(2020, 2031)])
 year_dropdown.config(width=5)
-year_var.set(str(datetime.now().year))  # Default to current year
+year_var.set(str(datetime.now().year))  
 year_dropdown.pack(side="left", padx=5, pady=2)
 
 update_button = ttk.Button(summary_frame, text="Update Summary", command=update_summary, width=50)
@@ -330,6 +310,6 @@ expense_frame.pack(padx=10, pady=5, fill="both")
 income_frame.pack(padx=10, pady=5, fill="both")
 report_frame.pack(padx=10, pady=5, fill="both")
 
-# Run the main loop
+
 update_summary()
 root.mainloop()

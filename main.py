@@ -4,12 +4,10 @@ from data_handler import add_expense, add_income, save_data
 from visualization import plot_expenses_by_category, plot_monthly_income_expenses
 import atexit
 
-# This will reset the data when the program ends
 def reset_data_on_exit():
     initial_data = {"expenses": [], "income": []}
-    save_data(initial_data)  # Save empty data to reset the file
+    save_data(initial_data)
 
-# Register the function to run at exit
 atexit.register(reset_data_on_exit)
 
 def add_expense_ui():

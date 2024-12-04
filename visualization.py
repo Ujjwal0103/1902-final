@@ -33,7 +33,6 @@ def plot_monthly_income_expenses(year: int, month: int):
     monthly_expenses = 0.0
     monthly_income = 0.0
 
-    # Helper function to ensure the date is in string format (YYYY-MM-DD)
     def ensure_date_string(date_value):
         if isinstance(date_value, str):
             return date_value
@@ -44,7 +43,6 @@ def plot_monthly_income_expenses(year: int, month: int):
         else:
             raise ValueError(f"Invalid date type: {type(date_value)}")
 
-    # Filter expenses by month and year
     for expense in expenses:
         try:
             expense_date_str = ensure_date_string(expense["date"])
@@ -70,11 +68,9 @@ def plot_monthly_income_expenses(year: int, month: int):
         except KeyError as e:
             print(f"Missing expected key {e} in income data.")
 
-    # Print for debugging
     print(f"Monthly Expenses for {year}-{month}: {monthly_expenses}")
     print(f"Monthly Income for {year}-{month}: {monthly_income}")
 
-    # Plot data
     if monthly_income == 0 and monthly_expenses == 0:
         print("No data available for this month.")
     else:
