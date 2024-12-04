@@ -1,7 +1,5 @@
 from datetime import date
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from pydantic import BaseModel
-from typing import List
 
 class Expense(BaseModel):
     amount: float
