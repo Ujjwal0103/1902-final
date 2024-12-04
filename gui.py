@@ -237,7 +237,7 @@ net_balance_label.pack(pady=2)
 month_label = ttk.Label(summary_frame, text="Select Month", font= 24)
 month_label.pack(side="left", padx=5, pady=2)
 month_var = tk.StringVar()
-month_dropdown = ttk.OptionMenu(summary_frame, month_var, *[str(i) for i in range(1, 13)])
+month_dropdown = ttk.OptionMenu(summary_frame, month_var, *[str(i) for i in range(0, 13)])
 month_dropdown.config(width=5)
 month_var.set(str(datetime.now().month))  # Default to current month
 month_dropdown.pack(side="left", padx=5, pady=2)
