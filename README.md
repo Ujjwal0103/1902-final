@@ -27,9 +27,9 @@ python3 gui.py
 
 ## Project Structure
 
-main.py: Console interface
-gui.py: Tkinter GUI
-data_handler.py: Data management
-models.py: Data models
-visualization.py: Financial reporting
-data.json: Transaction storage
+- `main.py: Console interface`
+- `gui.py: Tkinter GUI`
+- `data_handler.py: Data management`
+- `models.py: Data models`
+- `visualization.py: Financial reporting`
+- `data.json: Transaction storage`
