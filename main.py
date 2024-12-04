@@ -16,7 +16,6 @@ def add_expense_ui():
     date_str = input("Enter date (YYYY-MM-DD): ")
     description = input("Enter description: ")
     date = datetime.strptime(date_str, "%Y-%m-%d").date()
-
     expense = Expense(amount=amount, category=category, date=date, description=description)
     add_expense(expense)
     print("Expense added successfully.")
@@ -26,7 +25,6 @@ def add_income_ui():
     source = input("Enter income source: ")
     date_str = input("Enter date (YYYY-MM-DD): ")
     date = datetime.strptime(date_str, "%Y-%m-%d").date()
-
     income = Income(amount=amount, source=source, date=date)
     add_income(income)
     print("Income added successfully.")

@@ -53,7 +53,6 @@ def plot_monthly_income_expenses(year: int, month: int):
         except KeyError as e:
             print(f"Missing expected key {e} in expense data.")
 
-    # Filter income by month and year
     for inc in income:
         try:
             income_date_str = ensure_date_string(inc["date"])
