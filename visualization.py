@@ -7,7 +7,6 @@ def plot_expenses_by_category():
     data = load_data()
     expenses = data["expenses"]
 
-    # Aggregate expenses by category
     category_totals = defaultdict(float)
     for expense in expenses:
         try:
@@ -19,7 +18,6 @@ def plot_expenses_by_category():
     categories = list(category_totals.keys())
     amounts = list(category_totals.values())
 
-    # Create a pie chart
     plt.figure(figsize=(8, 6))
     plt.pie(amounts, labels=categories, autopct='%1.1f%%', startangle=140)
     plt.title("Expenses by Category")

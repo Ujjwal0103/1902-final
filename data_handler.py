@@ -1,6 +1,5 @@
 import json
 from models import Expense, Income
-from typing import List
 from datetime import datetime
 
 DATA_FILE = "data.json"
