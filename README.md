@@ -29,8 +29,6 @@ pip install matplotlib pydantic
 
 ## Usage
 
-bash
-
 ```
 python3 gui.py
 ```
